@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Awesome Calculator</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="./assets/css/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+  <div class="container">
+    <table>
+      <tr>
+        <td colspan="5">
+          <div id="screen">
+            <span id="screen_top">M={{ memory || 0 }}</span>
+            <div id="screen_bottom">
+              <!-- <span class="operand1">0</span>
+              <span id="operator"></span>
+              <span id="operand2"></span> -->
+              {{ current || 0 }}
+            </div>
+            <!-- <span id="screen_bottom">0</span> -->
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="button" v-on:click="memoryClear" class="btn btn-warning">MC</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="memoryRecall" class="btn btn-warning">MR</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="memorySubtract" class="btn btn-warning">M-</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="memoryAdd" class="btn btn-warning">M+</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="back" class="btn btn-light"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="button" v-on:click="append('7')" class="btn btn-light">7</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('8')" class="btn btn-light">8</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('9')" class="btn btn-light">9</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="divides" class="btn btn-secondary">÷</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="sign" class="btn btn-light">+/-</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="button" v-on:click="append('4')" class="btn btn-light">4</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('5')" class="btn btn-light">5</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('6')" class="btn btn-light">6</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="multiply" class="btn btn-secondary">x</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="subtract" class="btn btn-secondary">-</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="button" v-on:click="append('1')" class="btn btn-light">1</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('2')" class="btn btn-light">2</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('3')" class="btn btn-light">3</button>
+        </td>
+        <td rowspan="2">
+          <button type="button" v-on:click="add" class="btn btn-secondary long-btn">+</button>
+        </td>
+        <td rowspan="2">
+          <button type="button" v-on:click="equal" class="btn btn-primary long-btn">=</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="button" v-on:click="clear" class="btn btn-danger">C</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="append('0')" class="btn btn-light">0</button>
+        </td>
+        <td>
+          <button type="button" v-on:click="dot" class="btn btn-light">.</button>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="alert alert-danger" id="message_panel" role="alert">
+    something wrong here
+  </div>
+
+  <script>
+    var container = new Vue({
+      el:'.container',
+      data: {
+        previous: null,
+        current: '',
+        memory: '',
+        operator: null,
+        operatorClicked: false,
+      },
+      methods: {
+        clear() {
+          this.current = 0;
+        },
+        sign() {
+          this.current = this.current.charAt(0) === '-' ?
+            this.current.slice(1) : `-${this.current}`;
+        },
+        append: function(number) {
+          if (this.operatorClicked) {
+            this.current = '';
+            this.operatorClicked = false;
+          }
+          this.current = `${this.current}${number}`;
+        },
+        dot() {
+          if (this.current.indexOf('.') === -1) {
+            this.append('.');
+          } 
+        },
+        divides() {
+          this.operator = (a, b) => a / b;
+          this.previous = this.current;
+          this.operatorClicked = true;
+        },
+        multiply() {
+          this.operator = (a, b) => a * b;
+          this.previous = this.current;
+          this.operatorClicked = true;
+        },
+        subtract() {
+          this.operator = (a, b) => a - b;
+          this.previous = this.current;
+          this.operatorClicked = true;
+        },
+        add() {
+          this.operator = (a, b) => a + b;
+          this.previous = this.current;
+          this.operatorClicked = true;
+        },
+        equal() {
+          this.current = `${this.operator(parseFloat(this.current), parseFloat(this.previous))}`;
+          this.previous = null;
+        },
+        back() {
+          
+        },
+        memoryRecall() {
+          this.current = this.memory;
+        },
+        memorySubtract() {
+          this.operator = (a, b) => a - b;
+          this.memory = `${this.operator(parseFloat(this.memory), parseFloat(this.current))}`;
+        },
+        memoryAdd() {
+          this.operator = (a, b) => a + b;
+          this.memory = `${this.operator(parseFloat(this.memory), parseFloat(this.current))}`;
+        },
+        memoryClear() {
+          this.memory = 0;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
